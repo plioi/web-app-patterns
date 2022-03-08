@@ -8,4 +8,6 @@ public partial class Database : DbContext
         : base(options)
     {
     }
+
+    public DbSet<Contact> Contact { get; set; } = default!;
 }
