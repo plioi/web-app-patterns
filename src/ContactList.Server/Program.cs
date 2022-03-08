@@ -1,3 +1,4 @@
+using ContactList.Server.Infrastructure;
 using ContactList.Server.Model;
 using FluentValidation.AspNetCore;
 using MediatR;
@@ -6,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services
-    .AddControllersWithViews()
+    .AddControllersWithViews(options => options.Filters.Add<UnitOfWork>())
     .AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<Program>());
 
 builder.Services.AddDbContext<Database>(options =>
