@@ -6,6 +6,12 @@ namespace ContactList.Server.Tests;
 
 static class Assertions
 {
+    public static TException Throws<TException>(this Action operation) where TException : Exception
+        => Should.Throw<TException>(operation);
+
+    public static async Task<TException> ThrowsAsync<TException>(this Func<Task> operation) where TException : Exception
+        => await Should.ThrowAsync<TException>(operation);
+
     public static void ShouldMatch<T>(this IEnumerable<T> actual, params T[] expected)
         => actual.ToArray().ShouldMatch(expected);
 
