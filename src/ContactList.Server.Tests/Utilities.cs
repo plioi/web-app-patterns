@@ -80,6 +80,19 @@ static class Utilities
     public static Task<int> CountAsync<TEntity>() where TEntity : Entity
         => QueryAsync(database => database.Set<TEntity>().CountAsync());
 
+    public static Task<TResponse> SendAsync<TResponse>(IRequest<TResponse> request)
+        => ExecuteScopeAsync(services =>
+        {
+            Validate(services, request);
+
+            var mediator = services.GetRequiredService<IMediator>();
+
+            return mediator.Send(request);
+        });
+
+    public static Task SendAsync(IRequest request)
+        => SendAsync((IRequest<Unit>) request);
+
     public static ValidationResult Validation<TResult>(IRequest<TResult> message)
     {
         using var scope = ServerTestExecution.CreateScope();
