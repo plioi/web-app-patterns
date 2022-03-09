@@ -1,21 +1,18 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.30114.105
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.32112.339
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ContactList.Server", "ContactList.Server\ContactList.Server.csproj", "{642D5099-0DCB-4432-BAB4-21524EC15784}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ContactList.Server", "ContactList.Server\ContactList.Server.csproj", "{642D5099-0DCB-4432-BAB4-21524EC15784}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ContactList.Server.Tests", "ContactList.Server.Tests\ContactList.Server.Tests.csproj", "{04495F82-AB44-4B74-83F2-AD59BFB8293F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ContactList.Server.Tests", "ContactList.Server.Tests\ContactList.Server.Tests.csproj", "{04495F82-AB44-4B74-83F2-AD59BFB8293F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ContactList.Contracts", "ContactList.Contracts\ContactList.Contracts.csproj", "{372AB914-AD26-42BC-981B-3B86ECA8BAFB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ContactList.Contracts", "ContactList.Contracts\ContactList.Contracts.csproj", "{372AB914-AD26-42BC-981B-3B86ECA8BAFB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
-	EndGlobalSection
-	GlobalSection(SolutionProperties) = preSolution
-		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{642D5099-0DCB-4432-BAB4-21524EC15784}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -30,5 +27,11 @@ Global
 		{372AB914-AD26-42BC-981B-3B86ECA8BAFB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{372AB914-AD26-42BC-981B-3B86ECA8BAFB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{372AB914-AD26-42BC-981B-3B86ECA8BAFB}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {379DAD54-3566-466F-AB5E-E6907ACD7AC1}
 	EndGlobalSection
 EndGlobal
