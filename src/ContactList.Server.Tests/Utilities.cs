@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using System.Text.Json;
 using ContactList.Server.Model;
 using ContactList.Server.Tests.Execution;
@@ -11,6 +12,15 @@ namespace ContactList.Server.Tests;
 
 static class Utilities
 {
+    static readonly Random Random = new();
+
+    static string SampleString([CallerMemberName] string caller = "")
+        => caller.Replace("Sample", "") + "-" + Guid.NewGuid();
+
+    public static string SampleEmail() => SampleString() + "@example.com";
+    public static string SampleName() => SampleString();
+    public static string SamplePhoneNumber() => $"{Random.Next(100, 1000)}-555-0{Random.Next(100, 200)}";
+
     public static string Json(object? value) =>
         JsonSerializer.Serialize(value, new JsonSerializerOptions
         {
