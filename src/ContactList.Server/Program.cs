@@ -2,12 +2,17 @@ using ContactList.Server.Infrastructure;
 using ContactList.Server.Model;
 using FluentValidation.AspNetCore;
 using MediatR;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services
-    .AddControllersWithViews(options => options.Filters.Add<UnitOfWork>())
+    .AddControllersWithViews(options =>
+    {
+        options.Filters.Add<AutoValidateAntiforgeryTokenAttribute>();
+        options.Filters.Add<UnitOfWork>();
+    })
     .AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<Program>());
 
 builder.Services.AddDbContext<Database>(options =>
