@@ -1,5 +1,6 @@
 using System.Runtime.CompilerServices;
 using System.Text.Json;
+using ContactList.Contracts;
 using ContactList.Server.Model;
 using ContactList.Server.Tests.Execution;
 using FluentValidation;
@@ -20,6 +21,26 @@ static class Utilities
     public static string SampleEmail() => SampleString() + "@example.com";
     public static string SampleName() => SampleString();
     public static string SamplePhoneNumber() => $"{Random.Next(100, 1000)}-555-0{Random.Next(100, 200)}";
+
+    public static async Task<Contact> AddSampleContactAsync(Action<AddContactCommand>? customize = null)
+    {
+        var command = new AddContactCommand
+        {
+            Email = SampleEmail(),
+            Name = SampleName(),
+            PhoneNumber = SamplePhoneNumber()
+        };
+
+        customize?.Invoke(command);
+
+        var contactId = (await SendAsync(command)).ContactId;
+
+        var contact = await FindAsync<Contact>(contactId);
+
+        contact.ShouldNotBeNull();
+
+        return contact;
+    }
 
     public static string Json(object? value) =>
         JsonSerializer.Serialize(value, new JsonSerializerOptions
