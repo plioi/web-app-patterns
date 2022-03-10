@@ -2,11 +2,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.32112.339
 MinimumVisualStudioVersion = 16.0.0.0
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ContactList.Server", "Server\ContactList.Server.csproj", "{642D5099-0DCB-4432-BAB4-21524EC15784}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ContactList.Server", "ContactList.Server\ContactList.Server.csproj", "{642D5099-0DCB-4432-BAB4-21524EC15784}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ContactList.Client", "Client\ContactList.Client.csproj", "{705AF2A8-39BA-42F3-B14A-76A8C1C0E10D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ContactList.Client", "ContactList.Client\ContactList.Client.csproj", "{705AF2A8-39BA-42F3-B14A-76A8C1C0E10D}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ContactList.Shared", "Shared\ContactList.Shared.csproj", "{AB333DD9-0B4A-4313-AA0E-763843FC8B3D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ContactList.Shared", "ContactList.Shared\ContactList.Shared.csproj", "{AB333DD9-0B4A-4313-AA0E-763843FC8B3D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
