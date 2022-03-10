@@ -12,8 +12,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ContactList.Client\ContactList.Client.csproj" />
-    <ProjectReference Include="..\ContactList.Shared\ContactList.Shared.csproj" />
   </ItemGroup>
-
 
 </Project>
