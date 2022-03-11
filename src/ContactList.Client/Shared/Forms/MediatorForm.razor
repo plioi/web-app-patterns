@@ -3,6 +3,7 @@
 @inject MediatorClient _mediatorClient
 
 <EditForm Model="@Model" OnValidSubmit="@SendCommand">
+    <FluentValidationValidator DisableAssemblyScanning="@true"/>
     <ServerSideValidator @ref="_serverSideValidator"/>
     <Microsoft.AspNetCore.Components.Forms.ValidationSummary Model="@Model"/>
     @ChildContent
