@@ -1,3 +1,4 @@
+using ContactList.Contracts;
 using ContactList.Server.Infrastructure;
 using ContactList.Server.Model;
 using FluentValidation.AspNetCore;
@@ -47,5 +48,9 @@ app.UseRouting();
 app.MapRazorPages();
 app.MapControllers();
 app.MapFallbackToFile("index.html");
+
+app.MapGet("/api/contacts",
+    async (IMediator mediator)
+        => await mediator.Send(new GetContactsQuery()));
 
 app.Run();

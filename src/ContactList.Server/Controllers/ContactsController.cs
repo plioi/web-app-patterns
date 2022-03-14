@@ -13,10 +13,6 @@ public class ContactsController : ControllerBase
     public ContactsController(IMediator mediator)
         => _mediator = mediator;
 
-    [HttpGet]
-    public async Task<ContactViewModel[]> Get()
-        => await _mediator.Send(new GetContactsQuery());
-
     [HttpPost("Add")]
     public async Task<AddContactResponse> Add(AddContactCommand command)
         => await _mediator.Send(command);
