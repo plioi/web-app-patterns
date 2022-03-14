@@ -116,4 +116,24 @@ app.MapPost("/api/contacts/edit",
         }
     });
 
+app.MapPost("/api/contacts/delete",
+    async (DeleteContactCommand command, Database database, IMediator mediator) =>
+    {
+        try
+        {
+            await database.BeginTransactionAsync();
+
+            var response = await mediator.Send(command);
+            var result = Results.Ok(response);
+            await database.CommitTransactionAsync();
+
+            return result;
+        }
+        catch (Exception)
+        {
+            await database.RollbackTransactionAsync();
+            throw;
+        }
+    });
+
 app.Run();

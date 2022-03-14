@@ -12,8 +12,4 @@ public class ContactsController : ControllerBase
 
     public ContactsController(IMediator mediator)
         => _mediator = mediator;
-
-    [HttpPost("Delete")]
-    public async Task Delete(DeleteContactCommand command)
-        => await _mediator.Send(command);
 }
