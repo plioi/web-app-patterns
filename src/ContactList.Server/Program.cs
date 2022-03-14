@@ -2,7 +2,6 @@ using ContactList.Contracts;
 using ContactList.Server.Infrastructure;
 using ContactList.Server.Model;
 using FluentValidation;
-using FluentValidation.AspNetCore;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.ResponseCompression;
@@ -14,8 +13,7 @@ builder.Services
     .AddControllersWithViews(options =>
     {
         options.Filters.Add<UnitOfWork>();
-    })
-    .AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<Program>());
+    });
 builder.Services.AddRazorPages();
 
 builder.Services.AddDbContext<Database>(options =>
@@ -25,6 +23,7 @@ builder.Services.AddDbContext<Database>(options =>
 
 builder.Services.AddAutoMapper(typeof(Program));
 builder.Services.AddMediatR(typeof(Program));
+builder.Services.AddServerValidators();
 
 var app = builder.Build();
 
