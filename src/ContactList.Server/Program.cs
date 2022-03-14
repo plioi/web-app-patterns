@@ -1,6 +1,7 @@
 using ContactList.Contracts;
 using ContactList.Server.Infrastructure;
 using ContactList.Server.Model;
+using FluentValidation;
 using FluentValidation.AspNetCore;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -52,5 +53,36 @@ app.MapFallbackToFile("index.html");
 app.MapGet("/api/contacts",
     async (IMediator mediator)
         => await mediator.Send(new GetContactsQuery()));
+
+app.MapPost("/api/contacts/add",
+    async (AddContactCommand command, Database database, IValidator<AddContactCommand> validator, IMediator mediator) =>
+    {
+        try
+        {
+            await database.BeginTransactionAsync();
+
+            var context = new ValidationContext<object>(command);
+            var validationResult = validator.Validate(context);
+            if (!validationResult.IsValid)
+                return Results.ValidationProblem(validationResult.Errors
+                    .GroupBy(x => x.PropertyName)
+                    .ToDictionary(
+                        g => g.Key,
+                        g => g.Select(x => x.ErrorMessage).ToArray()
+                    ));
+
+            var response = await mediator.Send(command);
+            var result = Results.Ok(response);
+
+            await database.CommitTransactionAsync();
+
+            return result;
+        }
+        catch (Exception)
+        {
+            await database.RollbackTransactionAsync();
+            throw;
+        }
+    });
 
 app.Run();
