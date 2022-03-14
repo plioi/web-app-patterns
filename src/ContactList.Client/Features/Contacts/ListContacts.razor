@@ -1,0 +1,102 @@
+@page "/contacts"
+
+@inject MediatorClient _mediatorClient
+
+<PageTitle>Contacts</PageTitle>
+
+@if (_contacts != null)
+{
+    <Modal @ref="_deleteConfirmation">
+        <ModalContent Centered>
+            <ModalHeader>
+                <ModalTitle>Confirm Deletion</ModalTitle>
+                <CloseButton />
+            </ModalHeader>
+            <ModalBody>
+                Are you sure you want to delete '@(_deleteModel.Name)'? This action cannot be undone.
+            </ModalBody>
+            <ModalFooter>
+                <MediatorForm Route="api/contacts/delete"
+                              TRequest="DeleteContactCommand"
+                              TResponse="Unit"
+                              Model="_deleteModel"
+                              OnCommandSucceeded="@ContactDeleted">
+
+                    <input type="hidden" name="Id" value="@(_deleteModel.Id)"/>
+                    <Button Color="Color.Secondary" Clicked="CancelDeletion">Close</Button>
+                    <SubmitButton>Delete</SubmitButton>
+                </MediatorForm>
+
+            </ModalFooter>
+        </ModalContent>
+    </Modal>
+
+    <table class="table table-sm table-hover">
+        <thead>
+        <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Phone Number</th>
+            <th class="text-center">Edit</th>
+            <th class="text-center">Delete</th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var contact in _contacts)
+        {
+            <tr>
+                <td>@contact.Name</td>
+                <td>@contact.Email</td>
+                <td class="text-nowrap">@contact.PhoneNumber</td>
+                <td class="text-center">
+                    <a href="/contacts/edit/@contact.Id" role="button" class="btn btn-secondary">
+                        <Icon Name="IconName.Edit" />
+                    </a>
+                </td>
+                <td class="text-center">
+                    <button @onclick="async () => await ShowDeletionConfirmation(contact.Id, contact.Name)" role="button" class="btn btn-danger">
+                        <Icon Name="IconName.Delete" />
+                    </button>
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+
+    <a href="/contacts/add" role="button" class="btn btn-primary">Add Contact</a>
+}
+
+@code
+{
+    ContactViewModel[]? _contacts;
+    Modal _deleteConfirmation = default!;
+    readonly DeleteContactCommand _deleteModel = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await PopulateContacts();
+    }
+
+    async Task PopulateContacts()
+    {
+        _contacts = await _mediatorClient.GetAsync("api/contacts", new GetContactsQuery());
+    }
+
+    async Task ShowDeletionConfirmation(Guid contactId, string contactName)
+    {
+        _deleteModel.Id = contactId;
+        _deleteModel.Name = contactName;
+        await _deleteConfirmation.Show();
+    }
+
+    async Task ContactDeleted()
+    {
+        await _deleteConfirmation.Hide();
+        await PopulateContacts();
+    }
+
+    async Task CancelDeletion()
+    {
+        await _deleteConfirmation.Hide();
+    }
+}

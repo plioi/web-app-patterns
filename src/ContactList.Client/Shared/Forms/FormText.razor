@@ -1,0 +1,17 @@
+@using Microsoft.AspNetCore.Components
+@inherits InputText
+
+<div class="mb-3">
+    <label>@_displayName</label>
+    <InputText class="form-control"
+               @bind-Value="CurrentValue" />
+    <ValidationMessage For="ValueExpression" />
+</div>
+
+@code
+{
+    string? _displayName = null;
+
+    protected override void OnInitialized()
+        => _displayName = ValueExpression?.DisplayName();
+}

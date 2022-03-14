@@ -1,0 +1,30 @@
+@page "/contacts/add"
+
+@using Microsoft.AspNetCore.Components
+
+@inject MediatorClient _mediatorClient
+@inject NavigationManager _navManager
+
+<PageTitle>Add Contact</PageTitle>
+
+<MediatorForm Route="api/contacts/add"
+              TRequest="AddContactCommand"
+              TResponse="AddContactResponse"
+              Model="@_model"
+              OnCommandSucceeded="@ReturnToParentPage">
+
+    <FormText @bind-Value="_model.Email"/>
+    <FormText @bind-Value="_model.Name" />
+    <FormText @bind-Value="_model.PhoneNumber"/>
+
+    <SubmitButton />
+    <CancelButton Route="/contacts" />
+</MediatorForm>
+
+@code
+{
+    readonly AddContactCommand _model = new();
+
+    void ReturnToParentPage(AddContactResponse response)
+        => _navManager.NavigateTo("/contacts");
+}
