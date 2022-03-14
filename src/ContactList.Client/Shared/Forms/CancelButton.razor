@@ -1,0 +1,19 @@
+<a href="@Route" role="button" class="btn btn-secondary">
+    @if (ChildContent == null)
+    {
+        <text>Cancel</text>
+    }
+    else
+    {
+        @ChildContent
+    }
+</a>
+
+@code
+{
+    [Parameter]
+    public string? Route { get; set; }
+
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+}

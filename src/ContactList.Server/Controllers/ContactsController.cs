@@ -1,79 +1,35 @@
-using ContactList.Contracts;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using ContactList.Contracts;
 
 namespace ContactList.Server.Controllers;
 
-public class ContactsController : BaseController
+[ApiController]
+[Route("api/[controller]")]
+public class ContactsController : ControllerBase
 {
     readonly IMediator _mediator;
 
     public ContactsController(IMediator mediator)
-    {
-        _mediator = mediator;
-    }
+        => _mediator = mediator;
 
-    public async Task<ActionResult> Index(GetContactsQuery query)
-    {
-        var model = await _mediator.Send(query);
+    [HttpGet]
+    public async Task<ContactViewModel[]> Get()
+        => await _mediator.Send(new GetContactsQuery());
 
-        return View(model);
-    }
+    [HttpPost("Add")]
+    public async Task<AddContactResponse> Add(AddContactCommand command)
+        => await _mediator.Send(command);
 
-    public ActionResult Add()
-    {
-        return View();
-    }
+    [HttpGet("Edit")]
+    public async Task<EditContactCommand> Edit([FromQuery] EditContactQuery query)
+        => await _mediator.Send(query);
 
-    [HttpPost]
-    public async Task<ActionResult> Add(AddContactCommand command)
-    {
-        if (ModelState.IsValid)
-        {
-            await _mediator.Send(command);
+    [HttpPost("Edit")]
+    public async Task Edit(EditContactCommand command)
+        => await _mediator.Send(command);
 
-            SuccessMessage($"{command.Name} has been added.");
-
-            return RedirectToAction("Index");
-        }
-
-        return View(command);
-    }
-
-    public async Task<ActionResult> Edit(EditContactQuery query)
-    {
-        var model = await _mediator.Send(query);
-
-        return View(model);
-    }
-
-    [HttpPost]
-    public async Task<ActionResult> Edit(EditContactCommand command)
-    {
-        if (ModelState.IsValid)
-        {
-            await _mediator.Send(command);
-
-            SuccessMessage($"{command.Name} has been updated.");
-
-            return RedirectToAction("Index");
-        }
-
-        return View(command);
-    }
-
-    [HttpPost]
-    public async Task<ActionResult> Delete(DeleteContactCommand command)
-    {
-        if (ModelState.IsValid)
-        {
-            await _mediator.Send(command);
-
-            SuccessMessage($"{command.Name} has been deleted.");
-
-            return AjaxRedirect(Url.Action("Index")!);
-        }
-
-        return BadRequest();
-    }
+    [HttpPost("Delete")]
+    public async Task Delete(DeleteContactCommand command)
+        => await _mediator.Send(command);
 }

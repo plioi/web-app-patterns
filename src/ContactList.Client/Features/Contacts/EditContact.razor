@@ -1,0 +1,36 @@
+@page "/contacts/edit/{Id:guid}"
+
+@using Microsoft.AspNetCore.Components
+
+@inject MediatorClient _mediatorClient
+@inject NavigationManager _navManager
+
+<PageTitle>Edit Contact</PageTitle>
+
+<MediatorForm Route="api/contacts/edit"
+              TRequest="EditContactCommand"
+              TResponse="Unit"
+              Model="@_model"
+              OnCommandSucceeded="@ReturnToParentPage">
+
+    <FormText @bind-Value="_model.Email"/>
+    <FormText @bind-Value="_model.Name" />
+    <FormText @bind-Value="_model.PhoneNumber"/>
+
+    <SubmitButton />
+    <CancelButton Route="/contacts" />
+</MediatorForm>
+
+@code
+{
+    [Parameter]
+    public Guid Id { get; set; }
+
+    EditContactCommand _model = new();
+
+    protected override async Task OnInitializedAsync()
+        => _model = await _mediatorClient.GetAsync("api/contacts/edit", new EditContactQuery { Id = Id });
+
+    void ReturnToParentPage()
+        => _navManager.NavigateTo("/contacts");
+}

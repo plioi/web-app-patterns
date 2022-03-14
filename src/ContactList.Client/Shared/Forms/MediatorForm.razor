@@ -1,0 +1,48 @@
+@typeparam TRequest where TRequest : MediatR.IRequest<TResponse>
+@typeparam TResponse
+@inject MediatorClient _mediatorClient
+
+<EditForm Model="@Model" OnValidSubmit="@SendCommand">
+    <FluentValidationValidator DisableAssemblyScanning="@true"/>
+    <ServerSideValidator @ref="_serverSideValidator"/>
+    <Microsoft.AspNetCore.Components.Forms.ValidationSummary Model="@Model"/>
+    @ChildContent
+</EditForm>
+
+@code
+{
+    ServerSideValidator? _serverSideValidator;
+
+    /// <summary>
+    /// The route to post this form's command model to.
+    /// </summary>
+    [Parameter] public string? Route { get; set; }
+
+    /// <summary>
+    /// As with the built-in EditForm, specifies the top-level model object for the form.
+    /// </summary>
+    [Parameter] public TRequest? Model { get; set; }
+
+    /// <summary>
+    /// A callback that will be invoked when the form has successfully submitted
+    /// and returned successfully, including passing any server side validations.
+    /// </summary>
+    [Parameter] public EventCallback<TResponse> OnCommandSucceeded { get; set; }
+
+    /// <summary>
+    /// Form content such as individual input controls.
+    /// </summary>
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    async Task SendCommand()
+    {
+        await _mediatorClient.PostAsync(Route!, Model!,
+            async Task (TResponse response) =>
+            {
+                if (OnCommandSucceeded.HasDelegate)
+                    await OnCommandSucceeded.InvokeAsync(response);
+            },
+            errors => _serverSideValidator?.SetErrors(errors));
+    }
+}

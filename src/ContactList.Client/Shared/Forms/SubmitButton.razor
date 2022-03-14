@@ -1,0 +1,16 @@
+<button type="submit" class="btn btn-primary">
+    @if (ChildContent == null)
+    {
+        <text>Save</text>
+    }
+    else
+    {
+        @ChildContent
+    }
+</button>
+
+@code
+{
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+}

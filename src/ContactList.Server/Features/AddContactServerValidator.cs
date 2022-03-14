@@ -4,16 +4,13 @@ using FluentValidation;
 
 namespace ContactList.Server.Features;
 
-public class AddContactCommandValidator : AbstractValidator<AddContactCommand>
+public class AddContactServerValidator : AddContactClientValidator
 {
     readonly Database _database;
 
-    public AddContactCommandValidator(Database database)
+    public AddContactServerValidator(Database database)
     {
         _database = database;
-        RuleFor(x => x.Email).NotEmpty().EmailAddress().Length(1, 255);
-        RuleFor(x => x.Name).NotEmpty().Length(1, 100);
-        RuleFor(x => x.PhoneNumber).Length(1, 50);
 
         RuleFor(x => x.Email)
             .Must(BeUniqueEmail)
