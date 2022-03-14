@@ -61,8 +61,7 @@ app.MapPost("/api/contacts/add",
         {
             await database.BeginTransactionAsync();
 
-            var context = new ValidationContext<object>(command);
-            var validationResult = validator.Validate(context);
+            var validationResult = validator.Validate(command);
             if (!validationResult.IsValid)
                 return Results.ValidationProblem(validationResult.Errors
                     .GroupBy(x => x.PropertyName)
@@ -88,5 +87,33 @@ app.MapPost("/api/contacts/add",
 app.MapGet("/api/contacts/edit",
     async (Guid id, IMediator mediator)
         => await mediator.Send(new EditContactQuery {Id = id}));
+
+app.MapPost("/api/contacts/edit",
+    async (EditContactCommand command, Database database, IValidator<EditContactCommand> validator, IMediator mediator) =>
+    {
+        try
+        {
+            await database.BeginTransactionAsync();
+
+            var validationResult = validator.Validate(command);
+            if (!validationResult.IsValid)
+                return Results.ValidationProblem(validationResult.Errors
+                    .GroupBy(x => x.PropertyName)
+                    .ToDictionary(
+                        g => g.Key,
+                        g => g.Select(x => x.ErrorMessage).ToArray()
+                    ));
+
+            var response = await mediator.Send(command);
+            var result = Results.Ok(response);
+            await database.CommitTransactionAsync();
+            return result;
+        }
+        catch (Exception)
+        {
+            await database.RollbackTransactionAsync();
+            throw;
+        }
+    });
 
 app.Run();
