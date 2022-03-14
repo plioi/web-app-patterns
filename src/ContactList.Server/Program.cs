@@ -85,4 +85,8 @@ app.MapPost("/api/contacts/add",
         }
     });
 
+app.MapGet("/api/contacts/edit",
+    async (Guid id, IMediator mediator)
+        => await mediator.Send(new EditContactQuery {Id = id}));
+
 app.Run();
