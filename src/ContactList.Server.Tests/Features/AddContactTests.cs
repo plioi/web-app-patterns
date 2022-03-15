@@ -54,7 +54,7 @@ class AddContactTests
         var phoneNumber = SamplePhoneNumber();
         var name = SampleName();
 
-        var response = await SendAsync(new AddContactCommand
+        var response = await PostAsync("/api/contacts/add", new AddContactCommand
         {
             Email = email,
             Name = name,

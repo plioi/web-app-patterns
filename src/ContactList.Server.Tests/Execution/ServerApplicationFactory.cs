@@ -2,6 +2,7 @@ using System.Reflection;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace ContactList.Server.Tests.Execution;
 
@@ -23,6 +24,8 @@ class ServerApplicationFactory : WebApplicationFactory<Program>
             //Example:
             //
             // services.AddSingleton<IExampleService, StubExampleService>();
+
+            services.AddSingleton(this);
         });
 
         builder.ConfigureAppConfiguration((_, configBuilder) =>

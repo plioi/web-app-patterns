@@ -11,7 +11,7 @@ class EditContactTests
         var phoneNumber = SamplePhoneNumber();
         var name = SampleName();
 
-        var response = await SendAsync(new AddContactCommand
+        var response = await PostAsync("/api/contacts/add", new AddContactCommand
         {
             Email = email,
             Name = name,
@@ -22,7 +22,7 @@ class EditContactTests
 
         var selectedContactId = response.ContactId;
 
-        var result = await SendAsync(new EditContactQuery
+        var result = await GetAsync("/api/contacts/edit", new EditContactQuery
         {
             Id = selectedContactId
         });
@@ -67,7 +67,7 @@ class EditContactTests
         var contactToEdit = await AddSampleContactAsync();
         var preexistingContact = await AddSampleContactAsync();
 
-        var command = await SendAsync(new EditContactQuery
+        var command = await GetAsync("/api/contacts/edit", new EditContactQuery
         {
             Id = contactToEdit.Id
         });
@@ -90,7 +90,7 @@ class EditContactTests
         var newPhoneNumber = SamplePhoneNumber();
         var newName = SampleName();
 
-        await SendAsync(new EditContactCommand
+        await PostAsync("/api/contacts/edit", new EditContactCommand
         {
             Id = selectedContact.Id,
             Email = newEmail,

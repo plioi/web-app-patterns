@@ -22,15 +22,18 @@ class ServerTestExecution : IExecution
 
     public async Task Run(TestSuite testSuite)
     {
-        await using var factory = new ServerApplicationFactory();
+        foreach (var testClass in testSuite.TestClasses)
+        {
+            await using var factory = new ServerApplicationFactory();
 
-        _configuration = factory.Services.GetRequiredService<IConfiguration>();
-        _scopeFactory = factory.Services.GetRequiredService<IServiceScopeFactory>();
+            _configuration = factory.Services.GetRequiredService<IConfiguration>();
+            _scopeFactory = factory.Services.GetRequiredService<IServiceScopeFactory>();
 
-        foreach (var test in testSuite.Tests)
-            await test.Run();
+            foreach (var test in testClass.Tests)
+                await test.Run();
 
-        _configuration = null;
-        _scopeFactory = null;
+            _configuration = null;
+            _scopeFactory = null;
+        }
     }
 }

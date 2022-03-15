@@ -12,7 +12,7 @@ class DeleteContactTests
 
         var countBefore = await CountAsync<Contact>();
 
-        await SendAsync(new DeleteContactCommand
+        await PostAsync("/api/contacts/delete", new DeleteContactCommand
         {
             Id = contactToDelete.Id
         });
