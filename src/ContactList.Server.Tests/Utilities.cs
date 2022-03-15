@@ -206,7 +206,7 @@ static class Utilities
         return uri;
     }
 
-    public static ValidationResult Validation<TResult>(IRequest<TResult> message)
+    public static async Task<ValidationResult> ValidationAsync<TResult>(IRequest<TResult> message)
     {
         using var scope = ServerTestExecution.CreateScope();
 
@@ -215,7 +215,7 @@ static class Utilities
         if (validator == null)
             throw new InvalidOperationException($"There is no validator for {message.GetType()} messages.");
 
-        return validator.Validate(new ValidationContext<object>(message));
+        return await validator.ValidateAsync(new ValidationContext<object>(message));
     }
 
     static IValidator? Validator<TResult>(IServiceProvider serviceProvider, IRequest<TResult> message)

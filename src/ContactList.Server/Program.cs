@@ -50,7 +50,7 @@ app.MapGet("/api/contacts",
 app.MapPost("/api/contacts/add",
     async (AddContactCommand command, IValidator<AddContactCommand> validator, IMediator mediator) =>
     {
-        var validationResult = validator.Validate(command);
+        var validationResult = await validator.ValidateAsync(command);
         if (!validationResult.IsValid)
             return Results.ValidationProblem(validationResult.Errors
                 .GroupBy(x => x.PropertyName)
@@ -70,7 +70,7 @@ app.MapGet("/api/contacts/edit",
 app.MapPost("/api/contacts/edit",
     async (EditContactCommand command, IValidator<EditContactCommand> validator, IMediator mediator) =>
     {
-        var validationResult = validator.Validate(command);
+        var validationResult = await validator.ValidateAsync(command);
         if (!validationResult.IsValid)
             return Results.ValidationProblem(validationResult.Errors
                 .GroupBy(x => x.PropertyName)

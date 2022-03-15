@@ -5,15 +5,15 @@ namespace ContactList.Server.Tests.Features;
 
 class AddContactTests
 {
-    public void ShouldRequireMinimumFields()
+    public async Task ShouldRequireMinimumFields()
     {
-        new AddContactCommand()
-            .ShouldNotValidate(
+        await new AddContactCommand()
+            .ShouldNotValidateAsync(
                 "'Email' must not be empty.",
                 "'Name' must not be empty.");
     }
 
-    public void ShouldRequireValidEmailAddress()
+    public async Task ShouldRequireValidEmailAddress()
     {
         var command = new AddContactCommand
         {
@@ -21,13 +21,13 @@ class AddContactTests
             PhoneNumber = SamplePhoneNumber()
         };
 
-        command.ShouldNotValidate("'Email' must not be empty.");
+        await command.ShouldNotValidateAsync("'Email' must not be empty.");
 
         command.Email = "test@example.com";
-        command.ShouldValidate();
+        await command.ShouldValidateAsync();
 
         command.Email = "test at example dot com";
-        command.ShouldNotValidate("'Email' is not a valid email address.");
+        await command.ShouldNotValidateAsync("'Email' is not a valid email address.");
     }
 
     public async Task ShouldRequireUniqueEmail()
@@ -41,11 +41,11 @@ class AddContactTests
             PhoneNumber = SamplePhoneNumber()
         };
 
-        command.ShouldValidate();
+        await command.ShouldValidateAsync();
 
         command.Email = preexistingContact.Email;
 
-        command.ShouldNotValidate($"'{command.Email}' is already in your contacts.");
+        await command.ShouldNotValidateAsync($"'{command.Email}' is already in your contacts.");
     }
 
     public async Task ShouldAddNewContact()

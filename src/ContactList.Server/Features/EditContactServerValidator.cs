@@ -1,6 +1,7 @@
 using ContactList.Contracts;
 using ContactList.Server.Model;
 using FluentValidation;
+using Microsoft.EntityFrameworkCore;
 
 namespace ContactList.Server.Features;
 
@@ -13,14 +14,14 @@ public class EditContactServerValidator : EditContactClientValidator
         _database = database;
 
         RuleFor(x => x.Email)
-            .Must(BeUniqueEmail)
+            .MustAsync(BeUniqueEmail)
             .When(x => x.Email != null)
             .WithMessage("'{PropertyValue}' is already in your contacts.");
     }
 
-    bool BeUniqueEmail(EditContactCommand command, string? email)
+    async Task<bool> BeUniqueEmail(EditContactCommand command, string? email, CancellationToken token)
     {
-        var existingContact = _database.Contact.SingleOrDefault(x => x.Email == email);
+        var existingContact = await _database.Contact.SingleOrDefaultAsync(x => x.Email == email, token);
 
         return existingContact == null || existingContact.Id == command.Id;
     }
