@@ -4,12 +4,13 @@ using ContactList.Server.Model;
 
 namespace ContactList.Server.Features;
 
-class EditContactQueryHandler
+class EditContactQueryHandler : IFeature
 {
-    public static EditContactCommand Handle(Guid id, Database database, IMapper mapper)
-    {
-        var contact = database.Contact.Find(id);
+    public void Enlist(WebApplication app)
+        => app.MapGet("/api/contacts/edit", View);
 
-        return mapper.Map<EditContactCommand>(contact);
+    static EditContactCommand View(Guid id, Database database, IMapper mapper)
+    {
+        return mapper.Map<EditContactCommand>(database.Contact.Find(id));
     }
 }

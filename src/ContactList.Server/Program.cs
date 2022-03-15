@@ -1,4 +1,3 @@
-using ContactList.Server.Features;
 using ContactList.Server.Model;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
@@ -38,11 +37,6 @@ app.UseMiddleware<UnitOfWork>();
 
 app.MapRazorPages();
 app.MapFallbackToFile("index.html");
-
-app.MapGet("/api/contacts", GetContactsQueryHandler.Handle);
-app.MapPost("/api/contacts/add", AddContactCommandHandler.Handle);
-app.MapGet("/api/contacts/edit", EditContactQueryHandler.Handle);
-app.MapPost("/api/contacts/edit", EditContactCommandHandler.Handle);
-app.MapPost("/api/contacts/delete", DeleteContactCommandHandler.Handle);
+app.MapFeatures();
 
 app.Run();

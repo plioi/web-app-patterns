@@ -4,13 +4,13 @@ using ContactList.Server.Model;
 
 namespace ContactList.Server.Features;
 
-class GetContactsQueryHandler
+class GetContactsQueryHandler : IFeature
 {
-    public static ContactViewModel[] Handle(Database database, IMapper mapper)
-    {
-        return database.Contact
-            .OrderBy(x => x.Name)
+    public void Enlist(WebApplication app)
+        => app.MapGet("/api/contacts", GetContacts);
+
+    static ContactViewModel[] GetContacts(Database database, IMapper mapper) =>
+        database.Contact.OrderBy(x => x.Name)
             .Select(mapper.Map<ContactViewModel>)
             .ToArray();
-    }
 }
