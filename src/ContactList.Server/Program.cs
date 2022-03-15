@@ -1,5 +1,4 @@
 using ContactList.Server.Features;
-using ContactList.Server.Infrastructure;
 using ContactList.Server.Model;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
