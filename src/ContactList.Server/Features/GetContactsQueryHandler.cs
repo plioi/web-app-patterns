@@ -6,20 +6,11 @@ namespace ContactList.Server.Features;
 
 class GetContactsQueryHandler
 {
-    readonly Database _database;
-    readonly IMapper _mapper;
-
-    public GetContactsQueryHandler(Database database, IMapper mapper)
+    public static ContactViewModel[] Handle(Database database, IMapper mapper)
     {
-        _database = database;
-        _mapper = mapper;
-    }
-
-    public ContactViewModel[] Handle(GetContactsQuery message)
-    {
-        return _database.Contact
+        return database.Contact
             .OrderBy(x => x.Name)
-            .Select(_mapper.Map<ContactViewModel>)
+            .Select(mapper.Map<ContactViewModel>)
             .ToArray();
     }
 }

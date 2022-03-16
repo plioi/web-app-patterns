@@ -6,19 +6,10 @@ namespace ContactList.Server.Features;
 
 class EditContactQueryHandler
 {
-    readonly Database _database;
-    readonly IMapper _mapper;
-
-    public EditContactQueryHandler(Database database, IMapper mapper)
+    public static EditContactCommand Handle(Guid id, Database database, IMapper mapper)
     {
-        _database = database;
-        _mapper = mapper;
-    }
+        var contact = database.Contact.Find(id);
 
-    public EditContactCommand Handle(EditContactQuery message)
-    {
-        var contact = _database.Contact.Find(message.Id);
-
-        return _mapper.Map<EditContactCommand>(contact);
+        return mapper.Map<EditContactCommand>(contact);
     }
 }

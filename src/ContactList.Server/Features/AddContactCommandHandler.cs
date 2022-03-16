@@ -1,29 +1,32 @@
 using AutoMapper;
 using ContactList.Contracts;
 using ContactList.Server.Model;
+using FluentValidation;
 
 namespace ContactList.Server.Features;
 
 class AddContactCommandHandler
 {
-    readonly Database _database;
-    readonly IMapper _mapper;
-
-    public AddContactCommandHandler(Database database, IMapper mapper)
+    public static async Task<IResult> Handle(AddContactCommand command, IValidator<AddContactCommand> validator, Database database, IMapper mapper)
     {
-        _database = database;
-        _mapper = mapper;
-    }
+        var validationResult = await validator.ValidateAsync(command);
+        if (!validationResult.IsValid)
+            return Results.ValidationProblem(validationResult.Errors
+                .GroupBy(x => x.PropertyName)
+                .ToDictionary(
+                    g => g.Key,
+                    g => g.Select(x => x.ErrorMessage).ToArray()
+                ));
 
-    public AddContactResponse Handle(AddContactCommand message)
-    {
-        var contact = _mapper.Map<Contact>(message);
+        var contact = mapper.Map<Contact>(command);
 
-        _database.Contact.Add(contact);
+        database.Contact.Add(contact);
 
-        return new AddContactResponse
+        var response = new AddContactResponse
         {
             ContactId = contact.Id
         };
+
+        return Results.Ok(response);
     }
 }

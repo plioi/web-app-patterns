@@ -5,17 +5,10 @@ namespace ContactList.Server.Features;
 
 class DeleteContactCommandHandler
 {
-    readonly Database _database;
-
-    public DeleteContactCommandHandler(Database database)
+    public static void Handle(DeleteContactCommand command, Database database)
     {
-        _database = database;
-    }
+        var contact = database.Contact.Single(x => x.Id == command.Id);
 
-    public void Execute(DeleteContactCommand message)
-    {
-        var contact = _database.Contact.Single(x => x.Id == message.Id);
-
-        _database.Contact.Remove(contact);
+        database.Contact.Remove(contact);
     }
 }
