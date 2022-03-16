@@ -21,11 +21,17 @@ static class Assertions
             throw new MatchException(expected, actual);
     }
 
-    public static void ShouldValidate<TResult>(this IRequest<TResult> message)
-        => Validation(message).ShouldBeSuccessful();
+    public static async Task ShouldValidateAsync<TResult>(this IRequest<TResult> message)
+    {
+        var result = await ValidationAsync(message);
+        result.ShouldBeSuccessful();
+    }
 
-    public static void ShouldNotValidate<TResult>(this IRequest<TResult> message, params string[] expectedErrors)
-        => Validation(message).ShouldBeFailure(expectedErrors);
+    public static async Task ShouldNotValidateAsync<TResult>(this IRequest<TResult> message, params string[] expectedErrors)
+    {
+        var result = await ValidationAsync(message);
+        result.ShouldBeFailure(expectedErrors);
+    }
 
     public static void ShouldBeSuccessful(this ValidationResult result)
     {

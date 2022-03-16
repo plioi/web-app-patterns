@@ -19,7 +19,10 @@ namespace ContactList.Server.Infrastructure
                         .FirstOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IValidator<>));
 
                     if (validatorServiceType != null)
+                    {
                         services.AddTransient(validatorServiceType, implementationType);
+                        services.AddTransient(implementationType);
+                    }
                 }
             }
         }

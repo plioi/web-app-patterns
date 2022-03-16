@@ -1,4 +1,7 @@
+using System.Net;
+using System.Net.Http.Json;
 using System.Runtime.CompilerServices;
+using System.Text;
 using System.Text.Json;
 using ContactList.Contracts;
 using ContactList.Server.Model;
@@ -8,6 +11,7 @@ using FluentValidation.Results;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using static System.Environment;
 
 namespace ContactList.Server.Tests;
 
@@ -33,7 +37,7 @@ static class Utilities
 
         customize?.Invoke(command);
 
-        var contactId = (await SendAsync(command)).ContactId;
+        var contactId = (await PostAsync("/api/contacts/add", command)).ContactId;
 
         var contact = await FindAsync<Contact>(contactId);
 
@@ -111,20 +115,98 @@ static class Utilities
     public static Task<int> CountAsync<TEntity>() where TEntity : Entity
         => QueryAsync(database => database.Set<TEntity>().CountAsync());
 
-    public static Task<TResponse> SendAsync<TResponse>(IRequest<TResponse> request)
-        => ExecuteScopeAsync(services =>
+    public static async Task<TResponse> GetAsync<TResponse>(string route, IRequest<TResponse> query)
+        where TResponse : class
+    {
+        using var scope = ServerTestExecution.CreateScope();
+        var factory = scope.ServiceProvider.GetRequiredService<ServerApplicationFactory>();
+        var client = factory.CreateClient();
+
+        var typedResponse = await client.GetFromJsonAsync<TResponse>(AppendQueryString(route, query));
+
+        if (typedResponse == null)
+            throw new Exception("HTTP response body was unexpectedly null.");
+
+        return typedResponse;
+    }
+
+    public static async Task<TResponse> PostAsync<TResponse>(string route, IRequest<TResponse> command)
+    {
+        using var scope = ServerTestExecution.CreateScope();
+        var factory = scope.ServiceProvider.GetRequiredService<ServerApplicationFactory>();
+        var client = factory.CreateClient();
+
+        var content = new StringContent(JsonSerializer.Serialize(command, command.GetType()), Encoding.UTF8, "application/json");
+
+        var response = await client.PostAsync(route, content);
+
+        if (response.StatusCode == HttpStatusCode.BadRequest)
         {
-            Validate(services, request);
+            var errors = await ReadValidationMessagesAsync(response);
 
-            var mediator = services.GetRequiredService<IMediator>();
+            if (errors.Count > 0)
+            {
+                var indentedErrorMessages = errors
+                    .SelectMany(x => x.Value)
+                    .OrderBy(errorMessage => errorMessage)
+                    .Select(errorMessage => "    " + errorMessage)
+                    .ToArray();
 
-            return mediator.Send(request);
-        });
+                var actual = string.Join(NewLine, indentedErrorMessages);
 
-    public static Task SendAsync(IRequest request)
-        => SendAsync((IRequest<Unit>) request);
+                throw new Exception($"Expected no validation errors, but found {indentedErrorMessages.Length}:{NewLine}{actual}");
+            }
+        }
 
-    public static ValidationResult Validation<TResult>(IRequest<TResult> message)
+        response.EnsureSuccessStatusCode();
+
+        TResponse? typedResponse = default;
+
+        if (typeof(TResponse) != typeof(Unit))
+            typedResponse = await response.Content.ReadFromJsonAsync<TResponse>();
+
+        if (typedResponse == null)
+            throw new Exception("HTTP response body was unexpectedly null.");
+
+        return typedResponse;
+    }
+
+    static async Task<Dictionary<string, List<string>>> ReadValidationMessagesAsync(HttpResponseMessage response)
+    {
+        var parsedResponse = await response.Content.ReadFromJsonAsync<ValidationFailureResponse>();
+
+        return parsedResponse?.Errors ?? new Dictionary<string, List<string>>();
+    }
+
+    class ValidationFailureResponse
+    {
+        public string? Title { get; set; }
+        public Dictionary<string, List<string>>? Errors { get; set; }
+    }
+
+    static string AppendQueryString<TResponse>(string route, IRequest<TResponse> query)
+    {
+        var queryString = System.Web.HttpUtility.ParseQueryString("");
+
+        var properties = query.GetType().GetProperties();
+
+        foreach (var parameter in properties)
+        {
+            var value = parameter.GetValue(query);
+
+            if (value != null)
+                queryString.Add(parameter.Name, value.ToString());
+        }
+
+        var uri = route;
+
+        if (queryString.Count > 0)
+            uri += "?" + queryString;
+
+        return uri;
+    }
+
+    public static async Task<ValidationResult> ValidationAsync<TResult>(IRequest<TResult> message)
     {
         using var scope = ServerTestExecution.CreateScope();
 
@@ -133,17 +215,7 @@ static class Utilities
         if (validator == null)
             throw new InvalidOperationException($"There is no validator for {message.GetType()} messages.");
 
-        return validator.Validate(new ValidationContext<object>(message));
-    }
-
-    static void Validate<TResponse>(IServiceProvider serviceProvider, IRequest<TResponse> message)
-    {
-        var validator = Validator(serviceProvider, message);
-        if (validator != null)
-        {
-            var context = new ValidationContext<object>(message);
-            validator.Validate(context).ShouldBeSuccessful();
-        }
+        return await validator.ValidateAsync(new ValidationContext<object>(message));
     }
 
     static IValidator? Validator<TResult>(IServiceProvider serviceProvider, IRequest<TResult> message)

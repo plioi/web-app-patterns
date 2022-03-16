@@ -34,13 +34,13 @@ class GetContactsQueryTests
             PhoneNumber = abePhoneNumber
         };
 
-        var benId = (await SendAsync(ben)).ContactId;
-        var cathyId = (await SendAsync(cathy)).ContactId;
-        var abeId = (await SendAsync(abe)).ContactId;
+        var benId = (await PostAsync("/api/contacts/add", ben)).ContactId;
+        var cathyId = (await PostAsync("/api/contacts/add", cathy)).ContactId;
+        var abeId = (await PostAsync("/api/contacts/add", abe)).ContactId;
 
         var expectedIds = new[] { benId, cathyId, abeId };
 
-        var result = await SendAsync(new GetContactsQuery());
+        var result = await GetAsync("/api/contacts", new GetContactsQuery());
 
         result.Length.ShouldBe(await CountAsync<Contact>());
 

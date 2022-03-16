@@ -1,9 +1,4 @@
-using ContactList.Contracts;
-using ContactList.Server.Infrastructure;
 using ContactList.Server.Model;
-using FluentValidation;
-using MediatR;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
 
@@ -17,7 +12,6 @@ builder.Services.AddDbContext<Database>(options =>
 });
 
 builder.Services.AddAutoMapper(typeof(Program));
-builder.Services.AddMediatR(typeof(Program));
 builder.Services.AddServerValidators();
 
 var app = builder.Build();
@@ -39,94 +33,10 @@ app.UseBlazorFrameworkFiles();
 app.UseStaticFiles();
 
 app.UseRouting();
+app.UseMiddleware<UnitOfWork>();
 
 app.MapRazorPages();
 app.MapFallbackToFile("index.html");
-
-app.MapGet("/api/contacts",
-    async (IMediator mediator)
-        => await mediator.Send(new GetContactsQuery()));
-
-app.MapPost("/api/contacts/add",
-    async (AddContactCommand command, Database database, IValidator<AddContactCommand> validator, IMediator mediator) =>
-    {
-        try
-        {
-            await database.BeginTransactionAsync();
-
-            var validationResult = validator.Validate(command);
-            if (!validationResult.IsValid)
-                return Results.ValidationProblem(validationResult.Errors
-                    .GroupBy(x => x.PropertyName)
-                    .ToDictionary(
-                        g => g.Key,
-                        g => g.Select(x => x.ErrorMessage).ToArray()
-                    ));
-
-            var response = await mediator.Send(command);
-            var result = Results.Ok(response);
-
-            await database.CommitTransactionAsync();
-
-            return result;
-        }
-        catch (Exception)
-        {
-            await database.RollbackTransactionAsync();
-            throw;
-        }
-    });
-
-app.MapGet("/api/contacts/edit",
-    async (Guid id, IMediator mediator)
-        => await mediator.Send(new EditContactQuery {Id = id}));
-
-app.MapPost("/api/contacts/edit",
-    async (EditContactCommand command, Database database, IValidator<EditContactCommand> validator, IMediator mediator) =>
-    {
-        try
-        {
-            await database.BeginTransactionAsync();
-
-            var validationResult = validator.Validate(command);
-            if (!validationResult.IsValid)
-                return Results.ValidationProblem(validationResult.Errors
-                    .GroupBy(x => x.PropertyName)
-                    .ToDictionary(
-                        g => g.Key,
-                        g => g.Select(x => x.ErrorMessage).ToArray()
-                    ));
-
-            var response = await mediator.Send(command);
-            var result = Results.Ok(response);
-            await database.CommitTransactionAsync();
-            return result;
-        }
-        catch (Exception)
-        {
-            await database.RollbackTransactionAsync();
-            throw;
-        }
-    });
-
-app.MapPost("/api/contacts/delete",
-    async (DeleteContactCommand command, Database database, IMediator mediator) =>
-    {
-        try
-        {
-            await database.BeginTransactionAsync();
-
-            var response = await mediator.Send(command);
-            var result = Results.Ok(response);
-            await database.CommitTransactionAsync();
-
-            return result;
-        }
-        catch (Exception)
-        {
-            await database.RollbackTransactionAsync();
-            throw;
-        }
-    });
+app.MapFeatures();
 
 app.Run();

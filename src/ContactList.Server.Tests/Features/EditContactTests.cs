@@ -11,7 +11,7 @@ class EditContactTests
         var phoneNumber = SamplePhoneNumber();
         var name = SampleName();
 
-        var response = await SendAsync(new AddContactCommand
+        var response = await PostAsync("/api/contacts/add", new AddContactCommand
         {
             Email = email,
             Name = name,
@@ -22,7 +22,7 @@ class EditContactTests
 
         var selectedContactId = response.ContactId;
 
-        var result = await SendAsync(new EditContactQuery
+        var result = await GetAsync("/api/contacts/edit", new EditContactQuery
         {
             Id = selectedContactId
         });
@@ -36,15 +36,15 @@ class EditContactTests
         });
     }
 
-    public void ShouldRequireMinimumFields()
+    public async Task ShouldRequireMinimumFields()
     {
-        new EditContactCommand()
-            .ShouldNotValidate(
+        await new EditContactCommand()
+            .ShouldNotValidateAsync(
                 "'Email' must not be empty.",
                 "'Name' must not be empty.");
     }
 
-    public void ShouldRequireValidEmailAddress()
+    public async Task ShouldRequireValidEmailAddress()
     {
         var command = new EditContactCommand
         {
@@ -53,13 +53,13 @@ class EditContactTests
             PhoneNumber = SamplePhoneNumber()
         };
 
-        command.ShouldNotValidate("'Email' must not be empty.");
+        await command.ShouldNotValidateAsync("'Email' must not be empty.");
 
         command.Email = "test@example.com";
-        command.ShouldValidate();
+        await command.ShouldValidateAsync();
 
         command.Email = "test at example dot com";
-        command.ShouldNotValidate("'Email' is not a valid email address.");
+        await command.ShouldNotValidateAsync("'Email' is not a valid email address.");
     }
 
     public async Task ShouldRequireUniqueEmail()
@@ -67,18 +67,18 @@ class EditContactTests
         var contactToEdit = await AddSampleContactAsync();
         var preexistingContact = await AddSampleContactAsync();
 
-        var command = await SendAsync(new EditContactQuery
+        var command = await GetAsync("/api/contacts/edit", new EditContactQuery
         {
             Id = contactToEdit.Id
         });
 
-        command.ShouldValidate();
+        await command.ShouldValidateAsync();
 
         command.Email = SampleEmail();
-        command.ShouldValidate();
+        await command.ShouldValidateAsync();
 
         command.Email = preexistingContact.Email;
-        command.ShouldNotValidate($"'{command.Email}' is already in your contacts.");
+        await command.ShouldNotValidateAsync($"'{command.Email}' is already in your contacts.");
     }
 
     public async Task ShouldSaveChangesToContact()
@@ -90,7 +90,7 @@ class EditContactTests
         var newPhoneNumber = SamplePhoneNumber();
         var newName = SampleName();
 
-        await SendAsync(new EditContactCommand
+        await PostAsync("/api/contacts/edit", new EditContactCommand
         {
             Id = selectedContact.Id,
             Email = newEmail,
