@@ -9,8 +9,6 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services
-    .AddControllersWithViews();
 builder.Services.AddRazorPages();
 
 builder.Services.AddDbContext<Database>(options =>
@@ -43,7 +41,6 @@ app.UseStaticFiles();
 app.UseRouting();
 
 app.MapRazorPages();
-app.MapControllers();
 app.MapFallbackToFile("index.html");
 
 app.MapGet("/api/contacts",
