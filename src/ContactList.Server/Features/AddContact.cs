@@ -10,7 +10,7 @@ class AddContact : IFeature
     public void Enlist(WebApplication app)
         => app.MapPost("/api/contacts/add", Add);
 
-    static async Task<IResult> Add(AddContactCommand command, IValidator<AddContactCommand> validator, Database database, IMapper mapper)
+    static async Task<IResult> Add(AddContactCommand command, Validator validator, Database database, IMapper mapper)
     {
         return await validator.GuardAsync(command, () =>
         {

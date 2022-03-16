@@ -19,7 +19,7 @@ class EditContact : IFeature
         return mapper.Map<EditContactCommand>(database.Contact.Find(id));
     }
 
-    static async Task<IResult> Save(EditContactCommand command, IValidator<EditContactCommand> validator, Database database, IMapper mapper)
+    static async Task<IResult> Save(EditContactCommand command, Validator validator, Database database, IMapper mapper)
     {
         return await validator.GuardAsync(command, () =>
         {
