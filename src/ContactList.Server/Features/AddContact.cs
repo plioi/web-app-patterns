@@ -24,4 +24,22 @@ class AddContact : IFeature
             };
         });
     }
+
+    class Validator : AddContactClientValidator
+    {
+        readonly Database _database;
+
+        public Validator(Database database)
+        {
+            _database = database;
+
+            RuleFor(x => x.Email)
+                .Must(BeUniqueEmail)
+                .When(x => x.Email != null)
+                .WithMessage("'{PropertyValue}' is already in your contacts.");
+        }
+
+        bool BeUniqueEmail(string? email)
+            => !_database.Contact.Any(x => x.Email == email);
+    }
 }

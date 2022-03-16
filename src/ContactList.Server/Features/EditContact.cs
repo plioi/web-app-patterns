@@ -2,6 +2,7 @@ using AutoMapper;
 using ContactList.Contracts;
 using ContactList.Server.Model;
 using FluentValidation;
+using Microsoft.EntityFrameworkCore;
 
 namespace ContactList.Server.Features;
 
@@ -26,5 +27,27 @@ class EditContact : IFeature
 
             mapper.Map(command, contact);
         });
+    }
+
+    class Validator : EditContactClientValidator
+    {
+        readonly Database _database;
+
+        public Validator(Database database)
+        {
+            _database = database;
+
+            RuleFor(x => x.Email)
+                .MustAsync(BeUniqueEmail)
+                .When(x => x.Email != null)
+                .WithMessage("'{PropertyValue}' is already in your contacts.");
+        }
+
+        async Task<bool> BeUniqueEmail(EditContactCommand command, string? email, CancellationToken token)
+        {
+            var existingContact = await _database.Contact.SingleOrDefaultAsync(x => x.Email == email, token);
+
+            return existingContact == null || existingContact.Id == command.Id;
+        }
     }
 }
