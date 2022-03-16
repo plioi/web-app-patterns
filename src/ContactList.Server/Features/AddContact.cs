@@ -5,7 +5,7 @@ using FluentValidation;
 
 namespace ContactList.Server.Features;
 
-class AddContactCommandHandler : IFeature
+class AddContact : IFeature
 {
     public void Enlist(WebApplication app)
         => app.MapPost("/api/contacts/add", Add);

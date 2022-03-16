@@ -5,10 +5,18 @@ using FluentValidation;
 
 namespace ContactList.Server.Features;
 
-class EditContactCommandHandler : IFeature
+class EditContact : IFeature
 {
     public void Enlist(WebApplication app)
-        => app.MapPost("/api/contacts/edit", Save);
+    {
+        app.MapGet("/api/contacts/edit", View);
+        app.MapPost("/api/contacts/edit", Save);
+    }
+
+    static EditContactCommand View(Guid id, Database database, IMapper mapper)
+    {
+        return mapper.Map<EditContactCommand>(database.Contact.Find(id));
+    }
 
     static async Task<IResult> Save(EditContactCommand command, IValidator<EditContactCommand> validator, Database database, IMapper mapper)
     {

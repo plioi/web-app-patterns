@@ -3,7 +3,7 @@ using ContactList.Server.Model;
 
 namespace ContactList.Server.Features;
 
-class DeleteContactCommandHandler : IFeature
+class DeleteContact : IFeature
 {
     public void Enlist(WebApplication app)
         => app.MapPost("/api/contacts/delete", Delete);

@@ -4,7 +4,7 @@ using ContactList.Server.Model;
 
 namespace ContactList.Server.Features;
 
-class GetContactsQueryHandler : IFeature
+class ListContacts : IFeature
 {
     public void Enlist(WebApplication app)
         => app.MapGet("/api/contacts", GetContacts);
