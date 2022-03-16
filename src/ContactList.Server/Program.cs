@@ -3,7 +3,6 @@ using ContactList.Server.Infrastructure;
 using ContactList.Server.Model;
 using FluentValidation;
 using MediatR;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
 
@@ -39,6 +38,7 @@ app.UseBlazorFrameworkFiles();
 app.UseStaticFiles();
 
 app.UseRouting();
+app.UseMiddleware<UnitOfWork>();
 
 app.MapRazorPages();
 app.MapFallbackToFile("index.html");
@@ -48,33 +48,19 @@ app.MapGet("/api/contacts",
         => await mediator.Send(new GetContactsQuery()));
 
 app.MapPost("/api/contacts/add",
-    async (AddContactCommand command, Database database, IValidator<AddContactCommand> validator, IMediator mediator) =>
+    async (AddContactCommand command, IValidator<AddContactCommand> validator, IMediator mediator) =>
     {
-        try
-        {
-            await database.BeginTransactionAsync();
+        var validationResult = validator.Validate(command);
+        if (!validationResult.IsValid)
+            return Results.ValidationProblem(validationResult.Errors
+                .GroupBy(x => x.PropertyName)
+                .ToDictionary(
+                    g => g.Key,
+                    g => g.Select(x => x.ErrorMessage).ToArray()
+                ));
 
-            var validationResult = validator.Validate(command);
-            if (!validationResult.IsValid)
-                return Results.ValidationProblem(validationResult.Errors
-                    .GroupBy(x => x.PropertyName)
-                    .ToDictionary(
-                        g => g.Key,
-                        g => g.Select(x => x.ErrorMessage).ToArray()
-                    ));
-
-            var response = await mediator.Send(command);
-            var result = Results.Ok(response);
-
-            await database.CommitTransactionAsync();
-
-            return result;
-        }
-        catch (Exception)
-        {
-            await database.RollbackTransactionAsync();
-            throw;
-        }
+        var response = await mediator.Send(command);
+        return Results.Ok(response);
     });
 
 app.MapGet("/api/contacts/edit",
@@ -82,51 +68,26 @@ app.MapGet("/api/contacts/edit",
         => await mediator.Send(new EditContactQuery {Id = id}));
 
 app.MapPost("/api/contacts/edit",
-    async (EditContactCommand command, Database database, IValidator<EditContactCommand> validator, IMediator mediator) =>
+    async (EditContactCommand command, IValidator<EditContactCommand> validator, IMediator mediator) =>
     {
-        try
-        {
-            await database.BeginTransactionAsync();
+        var validationResult = validator.Validate(command);
+        if (!validationResult.IsValid)
+            return Results.ValidationProblem(validationResult.Errors
+                .GroupBy(x => x.PropertyName)
+                .ToDictionary(
+                    g => g.Key,
+                    g => g.Select(x => x.ErrorMessage).ToArray()
+                ));
 
-            var validationResult = validator.Validate(command);
-            if (!validationResult.IsValid)
-                return Results.ValidationProblem(validationResult.Errors
-                    .GroupBy(x => x.PropertyName)
-                    .ToDictionary(
-                        g => g.Key,
-                        g => g.Select(x => x.ErrorMessage).ToArray()
-                    ));
-
-            var response = await mediator.Send(command);
-            var result = Results.Ok(response);
-            await database.CommitTransactionAsync();
-            return result;
-        }
-        catch (Exception)
-        {
-            await database.RollbackTransactionAsync();
-            throw;
-        }
+        var response = await mediator.Send(command);
+        return Results.Ok(response);
     });
 
 app.MapPost("/api/contacts/delete",
-    async (DeleteContactCommand command, Database database, IMediator mediator) =>
+    async (DeleteContactCommand command, IMediator mediator) =>
     {
-        try
-        {
-            await database.BeginTransactionAsync();
-
-            var response = await mediator.Send(command);
-            var result = Results.Ok(response);
-            await database.CommitTransactionAsync();
-
-            return result;
-        }
-        catch (Exception)
-        {
-            await database.RollbackTransactionAsync();
-            throw;
-        }
+        var response = await mediator.Send(command);
+        return Results.Ok(response);
     });
 
 app.Run();
