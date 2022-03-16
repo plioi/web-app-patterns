@@ -1,11 +1,10 @@
 using AutoMapper;
 using ContactList.Contracts;
 using ContactList.Server.Model;
-using MediatR;
 
 namespace ContactList.Server.Features;
 
-class GetContactsQueryHandler : RequestHandler<GetContactsQuery, ContactViewModel[]>
+class GetContactsQueryHandler
 {
     readonly Database _database;
     readonly IMapper _mapper;
@@ -16,7 +15,7 @@ class GetContactsQueryHandler : RequestHandler<GetContactsQuery, ContactViewMode
         _mapper = mapper;
     }
 
-    protected override ContactViewModel[] Handle(GetContactsQuery request)
+    public ContactViewModel[] Handle(GetContactsQuery message)
     {
         return _database.Contact
             .OrderBy(x => x.Name)

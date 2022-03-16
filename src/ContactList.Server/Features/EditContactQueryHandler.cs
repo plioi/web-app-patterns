@@ -1,11 +1,10 @@
 using AutoMapper;
 using ContactList.Contracts;
 using ContactList.Server.Model;
-using MediatR;
 
 namespace ContactList.Server.Features;
 
-class EditContactQueryHandler : RequestHandler<EditContactQuery, EditContactCommand>
+class EditContactQueryHandler
 {
     readonly Database _database;
     readonly IMapper _mapper;
@@ -16,7 +15,7 @@ class EditContactQueryHandler : RequestHandler<EditContactQuery, EditContactComm
         _mapper = mapper;
     }
 
-    protected override EditContactCommand Handle(EditContactQuery message)
+    public EditContactCommand Handle(EditContactQuery message)
     {
         var contact = _database.Contact.Find(message.Id);
 

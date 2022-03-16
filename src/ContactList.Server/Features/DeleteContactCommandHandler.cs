@@ -1,10 +1,9 @@
 using ContactList.Contracts;
 using ContactList.Server.Model;
-using MediatR;
 
 namespace ContactList.Server.Features;
 
-class DeleteContactCommandHandler : RequestHandler<DeleteContactCommand>
+class DeleteContactCommandHandler
 {
     readonly Database _database;
 
@@ -13,7 +12,7 @@ class DeleteContactCommandHandler : RequestHandler<DeleteContactCommand>
         _database = database;
     }
 
-    protected override void Handle(DeleteContactCommand message)
+    public void Execute(DeleteContactCommand message)
     {
         var contact = _database.Contact.Single(x => x.Id == message.Id);
 

@@ -1,8 +1,8 @@
 using ContactList.Contracts;
+using ContactList.Server.Features;
 using ContactList.Server.Infrastructure;
 using ContactList.Server.Model;
 using FluentValidation;
-using MediatR;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
 
@@ -16,8 +16,12 @@ builder.Services.AddDbContext<Database>(options =>
 });
 
 builder.Services.AddAutoMapper(typeof(Program));
-builder.Services.AddMediatR(typeof(Program));
 builder.Services.AddServerValidators();
+builder.Services.AddTransient<GetContactsQueryHandler>();
+builder.Services.AddTransient<AddContactCommandHandler>();
+builder.Services.AddTransient<EditContactQueryHandler>();
+builder.Services.AddTransient<EditContactCommandHandler>();
+builder.Services.AddTransient<DeleteContactCommandHandler>();
 
 var app = builder.Build();
 
@@ -44,11 +48,11 @@ app.MapRazorPages();
 app.MapFallbackToFile("index.html");
 
 app.MapGet("/api/contacts",
-    async (IMediator mediator)
-        => await mediator.Send(new GetContactsQuery()));
+    (GetContactsQueryHandler handler)
+        => handler.Handle(new GetContactsQuery()));
 
 app.MapPost("/api/contacts/add",
-    async (AddContactCommand command, IValidator<AddContactCommand> validator, IMediator mediator) =>
+    async (AddContactCommand command, IValidator<AddContactCommand> validator, AddContactCommandHandler handler) =>
     {
         var validationResult = await validator.ValidateAsync(command);
         if (!validationResult.IsValid)
@@ -59,16 +63,16 @@ app.MapPost("/api/contacts/add",
                     g => g.Select(x => x.ErrorMessage).ToArray()
                 ));
 
-        var response = await mediator.Send(command);
+        var response = handler.Handle(command);
         return Results.Ok(response);
     });
 
 app.MapGet("/api/contacts/edit",
-    async (Guid id, IMediator mediator)
-        => await mediator.Send(new EditContactQuery {Id = id}));
+    (Guid id, EditContactQueryHandler handler)
+        => handler.Handle(new EditContactQuery {Id = id}));
 
 app.MapPost("/api/contacts/edit",
-    async (EditContactCommand command, IValidator<EditContactCommand> validator, IMediator mediator) =>
+    async (EditContactCommand command, IValidator<EditContactCommand> validator, EditContactCommandHandler handler) =>
     {
         var validationResult = await validator.ValidateAsync(command);
         if (!validationResult.IsValid)
@@ -79,15 +83,15 @@ app.MapPost("/api/contacts/edit",
                     g => g.Select(x => x.ErrorMessage).ToArray()
                 ));
 
-        var response = await mediator.Send(command);
-        return Results.Ok(response);
+        handler.Handle(command);
+        return Results.Ok();
     });
 
 app.MapPost("/api/contacts/delete",
-    async (DeleteContactCommand command, IMediator mediator) =>
+    (DeleteContactCommand command, DeleteContactCommandHandler handler) =>
     {
-        var response = await mediator.Send(command);
-        return Results.Ok(response);
+        handler.Execute(command);
+        return Results.Ok();
     });
 
 app.Run();
