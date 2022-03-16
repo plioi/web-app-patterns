@@ -10,10 +10,7 @@ using Microsoft.EntityFrameworkCore;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services
-    .AddControllersWithViews(options =>
-    {
-        options.Filters.Add<UnitOfWork>();
-    });
+    .AddControllersWithViews();
 builder.Services.AddRazorPages();
 
 builder.Services.AddDbContext<Database>(options =>
